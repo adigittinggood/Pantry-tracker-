@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect"href="https://fonts.googleapis.com">
+    <link rel="preconnect"href="https://fonts.gstatic.com"crossorigin>
+    <title>Pantry|Firebase</title>
+    <style>
+         /* body{
+        background-color: #414141;
+        color:white;
+    } */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color:#AC485A">Pantry Tracker</h1>
+        <div class="image">
+        <img src="pantry-project-img.avif">
+</div>
+            <input type="text" placeholder="Enter item" id="enter-item">
+            <button type="button"id="submit">Add to inventory</button>
+    <!-- <div class="list"> -->
+    <ul id="shopping-list" style="color:black; padding:20px; ">
+        <li>Oranges</li>
+        <!-- <li>Apples</li>   -->
+    </ul>
+    <!-- </div> -->
+    <!-- </div> -->
+
+    <style>
+    *{
+    margin: 0;
+    padding:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #D6E3CD;
+    user-select: none;
+}
+
+input{
+    margin-top: 40px;
+    margin-right:20px ;
+    border-radius: 10px;
+    border:none;
+    background-color: #fff;
+    padding:10px;
+
+}
+/* .list{
+    background-color: #AC485A;
+    list-style-position: inside;
+    /* flex-direction: column; */
+    
+/* }  */
+#shopping-list{
+    list-style-position: inside;
+    flex-direction: column;
+}
+button{
+    background-color:#AC485A ;
+    color:white;
+    border:black;
+    border-radius: 75px;
+    padding:10px;
+    
+}
+button:hover{
+    background-color: #AC485A;
+    cursor:pointer;
+}
+ul{
+    list-style-type: none;
+    padding:0px;
+    display: flex;
+    
+    flex-wrap: wrap;
+    flex-grow: 1;
+
+}
+ul li{
+    display: flex;
+    background-color: #FFFDF8;
+    box-shadow: 0px 1px 4px rgba(0,0,0,0.2);
+    padding:10px;
+    border-radius: 8px;
+    gap:10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    text-align: center;
+}   
+ul li:hover{
+    background-color: #FFECC7;
+    cursor:pointer;
+}
+.container{
+    text-align: center;
+    flex-direction: column;
+    max-width: 320px;
+    margin:20px auto;
+    height:120vh;
+    /* justify-content: center;
+    text-align: center; */
+    padding:10px;
+
+}
+img{
+    border-radius: 50%;
+    height:200px;
+    width:200px;
+    
+}
+.image{
+    /* created a div and set it to flex
+    which tells browser that div is parent and img is flex item ;
+    ans set justify-content: center; */
+    display:flex;
+    justify-content: center;
+}
+    </style>
+    <script type="module">
+        import{initializeApp}from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import{getDatabase,ref,push,onValue,remove}from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js"
+        //add events on enter item and add to inventory
+        const appSettings={
+            databaseURL:"https://pantry-d0aa5-default-rtdb.asia-southeast1.firebasedatabase.app"
+        }
+        
+        const app=initializeApp(appSettings);
+        const database=getDatabase(app);
+        const itemsinDB=ref(database,"items");
+
+        //extracting elements that we require for js
+        const enteritem=document.getElementById('enter-item');
+        const shoppinglist=document.getElementById('shopping-list');
+        const addtoinventory=document.getElementById('submit');
+         //push data into firebase
+
+
+         addtoinventory.addEventListener('click',function(){
+            let itemval=enteritem.value;
+            push(itemsinDB,itemval);
+            //appendlist(itemval);
+            emptysearch();
+            
+
+        });
+onValue(itemsinDB,function(snapshot){
+    
+    if(snapshot.exists()){
+    let itemarray=Object.entries(snapshot.val());
+    clearlist();
+    for(let i=0;i<itemarray.length;i++){
+        
+        let currentitem=itemarray[i];
+        let currentitemId=currentitem[0];
+        let currentitemvalues=currentitem[1];
+        appendlist(currentitem);
+    }
+ } else{
+        shoppinglist.innerHTML="No items here yet!";
+
+        }
+    })
+ 
+ 
+    
+        function emptysearch(){
+            enteritem.value=" ";
+        }
+        function clearlist(){
+            shoppinglist.innerHTML=" ";
+
+        }
+        function appendlist(item){
+            //shoppinglist.innerHTML+=`<li>${itemval}</li>`;
+             let itemID=item[0]
+             let itemval=item[1];
+            let newEl=document.createElement("li");
+            newEl.textContent=itemval;
+            newEl.addEventListener("click",function(){
+                //console.log(`${itemID}`);
+                let locationtoberemovedinDB=ref(database,`items/${itemID}`);
+                remove(locationtoberemovedinDB);
+
+            })
+            shoppinglist.append(newEl);
+
+        }
+
+
+
+        //delete items from list
+
+        //retrieve data from firebase
+
+
+
+
+
+
+    </script>
+    <footer>Made with love </footer>
+</body>
+</html>
